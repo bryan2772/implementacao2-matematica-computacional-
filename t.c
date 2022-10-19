@@ -101,6 +101,8 @@ void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
     int i=0, j=0,k=0;
     double v[maxtam+1],ajj,aij;
     for (j=0;j<maxtam;j++){//linhas
+        //imprime(matrizaux);
+        //printf ("\n");
         pivotamento(matrizaux,j);
         ajj=matrizaux[j][j];
         for (k= 0; k <=maxtam; k++){
@@ -109,7 +111,7 @@ void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
             }else{
                 matrizaux[j][k]=matrizaux[j][k]/ajj;;//𝐿𝑗 ← 𝐿𝑗/𝑎𝑗𝑗 ;
             }
-            v[k]=matrizaux[j][k];//𝑉 ← 𝐿𝑗 ;
+            v[k]=matrizaux[j][k];//𝑉 ← 𝐿𝑗 ;]
         }
 
         for (i=0;i<maxtam;i++) {
@@ -125,7 +127,7 @@ void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
     }
 }
 
-//1-Método Algébrico de Gauss-Jordan
+//1-Método Algébrico de Gauss-Jordan=9,10,13,14
 //2-Método Iterativo de Gauss-Seidel
 //3-Ambos os métodos deverão tratar a ocorrência de coeficientes-pivôs nulos 
 //ou pequenos por meio do Método de Pivotamento Parcial.
@@ -167,12 +169,15 @@ int main(){//funcao principal do programa
             matrizaux[i][j]=matriz[ i ][ j ];
         }
     }
-       
-    imprime(matriz);
-    printf ("\n");
+    printf ("Matriz aumentada original [𝐴 ⋮ 𝑏] : \n");
+        imprime(matriz);
+        printf ("\n");
+
     gauss_jordan(matrizaux);
-    imprime(matrizaux);
-    printf ("\n");
+
+    printf ("Matriz equivalente [𝐴′ ⋮ 𝑏′] : \n");
+        imprime(matrizaux);
+        printf ("\n");
 
     pause();
 
