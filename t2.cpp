@@ -55,18 +55,30 @@ void fflush_stdin(){//funçao que limpa o buff
     while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
-void pivotamento(double matrizaux[15][15],int linha){
-    double maior=fabs(matrizaux[linha][linha]);
-
-    for(int i=linha-1;i<maxtam;i++){
-        for (int j = linha-1; j <=maxtam; j++){
+void pivotamento(int linha){
+    double matrizaux[15][15];
+    double maior=fabs(matrizaux[linha][linha]), aux[maxtam+1];
+    int posicao=linha;
+    for(int i=linha;i<maxtam;i++){
+        for (int j = linha; j <=maxtam; j++){
             if(maior < fabs(matrizaux[i][j])){
                 maior=fabs(matrizaux[i][j]);
+                posicao=i;
             }
         }
     }
-
-
+    if(posicao!=linha){
+            for (int j =0; j <=maxtam; j++){
+               aux[j]=matrizaux[posicao][j];
+            }
+            for (int j =0; j <=maxtam; j++){
+               printf(" %ld ",aux[j]);
+            }
+            for (int j = 0; j <=maxtam; j++){
+                matrizaux[posicao][j]=matrizaux[linha][j];
+                matrizaux[linha][j]=aux[j];
+            }   
+    }
 }
 
 //1-Método Algébrico de Gauss-Jordan
@@ -75,8 +87,7 @@ void pivotamento(double matrizaux[15][15],int linha){
 //ou pequenos por meio do Método de Pivotamento Parcial.
 
 int main(){//funcao principal do programa
-    int  i= 0,j= 0,k=0 ,cont= 0,op= 1;
-    char string[200];
+    int  i= 0,j= 0,k=0 ,op= 1;
     
 	FILE *file; //declaracao do ponteiro arquivo para o arquivo 1
     file= fopen("Inputs3.txt","r");//abre o arquivo 
@@ -126,7 +137,19 @@ int main(){//funcao principal do programa
                         if(j==maxtam){
                             printf(" =");
                         }
-                        printf(" %.2lf",matriz[ i ][ j ]);
+                        printf(" %.2lf",matrizaux[ i ][ j ]);
+                    }
+                    printf ("\n");
+                }
+
+              //  pivotamento(i);printf ("\n");
+                
+                for(i=0; i<maxtam; i++){//mostra a matriz na tela
+                    for(j=0; j<=maxtam; j++){
+                        if(j==maxtam){
+                            printf(" =");
+                        }
+                        printf(" %.2lf",matrizaux[ i ][ j ]);
                     }
                     printf ("\n");
                 }
@@ -135,25 +158,7 @@ int main(){//funcao principal do programa
 
             case 2: 
                 printf("\n2-\n");
-                    for(j=0;j<=maxtam;j++){
-                        for(i=0;i<=maxtam;i++){
-                            //pivotamento(matrizaux,i);
-                            if(j!=i){
-                                pivo = matrizaux[i][j]/matrizaux[j][j];
-                                for(k=0;k<=maxtam+1;k++){
-                                    matrizaux[i][k] = matrizaux[i][k]-pivo*matrizaux[j][k];
-                                }
-                            }
-                        }
-                    }
-
-                    for(i=1;i<=maxtam;i++){ /* resolver a Soluçao */
-                        S[i] = matrizaux[i][maxtam+1]/matrizaux[i][i];
-                    }
-                    printf("\nSolutiçao:\n");
-                    for(i=1;i<=maxtam;i++){
-                        printf("x[%d] = %0.3f\n",i, S[i]);
-                    }
+                   
                 pause();
             break;
 

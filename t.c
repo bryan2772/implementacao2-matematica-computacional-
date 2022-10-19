@@ -45,7 +45,7 @@ int maxtam= 0;
 
 void pause (){//funçao de pausar o sistema linux
     int ch;
-    while((ch = fgetc(stdin)) != EOF && ch != '\n');//ja limpa o buffer antes
+   // while((ch = fgetc(stdin)) != EOF && ch != '\n');//ja limpa o buffer antes
     printf ("\nPressione qualquer tecla para continuar...");
     scanf("%*c");//não PRECISO LIMPAR O BUFFER porque O USUARIO não VAI DIGITAR NADA
 }
@@ -55,18 +55,74 @@ void fflush_stdin(){//funçao que limpa o buff
     while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
-void pivotamento(double matrizaux[15][15],int linha){
-    double maior=fabs(matrizaux[linha][linha]);
+void pivotamento(double matrizaux[maxtam][maxtam+1],int linha){
+    int j=0;
 
-    for(int i=linha-1;i<maxtam;i++){
-        for (int j = linha-1; j <=maxtam; j++){
-            if(maior < fabs(matrizaux[i][j])){
-                maior=fabs(matrizaux[i][j]);
+    double maior=fabs(matrizaux[linha][linha]), aux[maxtam+1];
+    int posicao=linha;
+    for(int i=linha;i<maxtam;i++){
+        j=linha;
+        if(maior < fabs(matrizaux[i][j])){
+            maior=fabs(matrizaux[i][j]);
+            posicao=i;
+        }
+    }
+    if(posicao!=linha){
+        for (int j =0; j <=maxtam; j++){
+            aux[j]=matrizaux[posicao][j];
+        }
+        for (int j = 0; j <=maxtam; j++){
+            matrizaux[posicao][j]=matrizaux[linha][j];
+            matrizaux[linha][j]=aux[j];
+        }   
+    }
+}
+
+void imprime(double matriz[maxtam][maxtam+1]){
+    for(int i=0; i<maxtam; i++){//mostra a matriz na tela
+        for(int j=0; j<=maxtam; j++){
+            if(j==maxtam){
+                printf(" =");
+            }
+            printf(" %.2lf",matriz[ i ][ j ]);
+        }
+        printf ("\n");
+    }
+}
+/*
+matriz[3][4]=
+     j   j   j =  j
+i    2   3  -1 = -7
+i    1   1   1 = -1
+i   -1  -2   3 = 15
+
+*/
+void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
+    int i=0, j=0,k=0;
+    double v[maxtam+1],ajj,aij;
+    for (j=0;j<maxtam;j++){//linhas
+        pivotamento(matrizaux,j);
+        ajj=matrizaux[j][j];
+        for (k= 0; k <=maxtam; k++){
+            if(matrizaux[j][k]==0||ajj==0){
+                matrizaux[j][k]=0;
+            }else{
+                matrizaux[j][k]=matrizaux[j][k]/ajj;;//𝐿𝑗 ← 𝐿𝑗/𝑎𝑗𝑗 ;
+            }
+            v[k]=matrizaux[j][k];//𝑉 ← 𝐿𝑗 ;
+        }
+
+        for (i=0;i<maxtam;i++) {
+            if (i!=j){
+                aij=matrizaux[i][j];
+                for(k=0;k<=maxtam;k++){
+                    matrizaux[j][k]=matrizaux[j][k]*aij;// 𝐿𝑗 ← 𝐿𝑗 ∗ 𝑎𝑖𝑗 ;
+                    matrizaux[i][k]=matrizaux[i][k]-matrizaux[j][k];//𝐿𝑖 ← 𝐿𝑖 − 𝐿𝑗 ;
+                    matrizaux[j][k]=v[k];//𝐿𝑗 ← 𝑉;
+                }
             }
         }
     }
-
-
 }
 
 //1-Método Algébrico de Gauss-Jordan
@@ -75,11 +131,10 @@ void pivotamento(double matrizaux[15][15],int linha){
 //ou pequenos por meio do Método de Pivotamento Parcial.
 
 int main(){//funcao principal do programa
-    int  i= 0,j= 0,k=0 ,cont= 0,op= 1;
-    char string[200];
+    int  i= 0,j= 0;
     
 	FILE *file; //declaracao do ponteiro arquivo para o arquivo 1
-    file= fopen("Inputs3.txt","r");//abre o arquivo 
+    file= fopen("Inputs3-2.txt","r");//abre o arquivo 
     
     if(file==NULL){//verifica se o file esta abrindo corretamente
         printf("nao foi possivel abrir o arquivo.\n");
@@ -88,7 +143,7 @@ int main(){//funcao principal do programa
     }
    
     fscanf(file,"%d",&maxtam);//le um valor de uma variavel do arquivo como se o usuario estivesse digitado
-    double matriz[maxtam][maxtam+1],vetor[maxtam],pivo,S[maxtam],matrizaux[maxtam][maxtam+1];//declara a matriz e o vetor b no tamanho lido
+    double matriz[maxtam][maxtam+1],vetor[maxtam],matrizaux[maxtam][maxtam+1];//declara a matriz e o vetor b no tamanho lido
     
     for(i=0; i<maxtam; i++){//preenche a matriz com os valores do arquivo
         for(j=0; j<maxtam; j++){
@@ -103,7 +158,7 @@ int main(){//funcao principal do programa
     fclose(file);//fecha o arquivo para evitar erros
 
     j=maxtam;
-    for(i=0; i<maxtam; i++){//adiciona o vetor b a matriz
+    for(i=0; i<maxtam; i++){//adiciona o vetor b a matriz na ultima coluna
        matriz[ i ][ j ]=vetor[i];
     }
 
@@ -112,65 +167,14 @@ int main(){//funcao principal do programa
             matrizaux[i][j]=matriz[ i ][ j ];
         }
     }
+       
+    imprime(matriz);
+    printf ("\n");
+    gauss_jordan(matrizaux);
+    imprime(matrizaux);
+    printf ("\n");
 
-    while(op!=0){//laço para gerir a hora de sair do menu 
-        
-        printf("\nMENU\n0- Sair\n1-opçao para mostrar a matriz \n2-opçao para executar o metodo de Gauss-Jordan\n3-opçao para executar o metodo de Gauss-Seidel\n");
-        scanf("%d",&op);
-        system("clear||cls");//limpar a tela
-
-        switch (op){//switch para seleçao de qual opçao seguir
-            case 1:        
-                for(i=0; i<maxtam; i++){//mostra a matriz na tela
-                    for(j=0; j<=maxtam; j++){
-                        if(j==maxtam){
-                            printf(" =");
-                        }
-                        printf(" %.2lf",matriz[ i ][ j ]);
-                    }
-                    printf ("\n");
-                }
-                pause();
-            break;
-
-            case 2: 
-                printf("\n2-\n");
-                    for(j=0;j<=maxtam;j++){
-                        for(i=0;i<=maxtam;i++){
-                            //pivotamento(matrizaux,i);
-                            if(j!=i){
-                                pivo = matrizaux[i][j]/matrizaux[j][j];
-                                for(k=0;k<=maxtam+1;k++){
-                                    matrizaux[i][k] = matrizaux[i][k]-pivo*matrizaux[j][k];
-                                }
-                            }
-                        }
-                    }
-
-                    for(i=1;i<=maxtam;i++){ /* resolver a Soluçao */
-                        S[i] = matrizaux[i][maxtam+1]/matrizaux[i][i];
-                    }
-                    printf("\nSolutiçao:\n");
-                    for(i=1;i<=maxtam;i++){
-                        printf("x[%d] = %0.3f\n",i, S[i]);
-                    }
-                pause();
-            break;
-
-            case 3: 
-                printf("\n3-\n");
-                pause();
-            break;
-
-            default:
-                if(op!=0){
-                    printf("\nopçao invalida...\n");
-                    pause();
-                }
-            break;
-        }
-        system("clear||cls");//limpa a tela tanto no Windows quanto no linux
-    }
+    pause();
 
     return 0;//encerra o programa
 }
