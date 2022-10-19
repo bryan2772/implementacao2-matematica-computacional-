@@ -41,8 +41,6 @@ parar apenas quando chegar à iteração 𝑘 e apresentar a solução aproximad
 #include <time.h>
 #include <math.h>
 
-int maxtam= 0;
-
 void pause (){//funçao de pausar o sistema linux
     int ch;
    // while((ch = fgetc(stdin)) != EOF && ch != '\n');//ja limpa o buffer antes
@@ -55,20 +53,20 @@ void fflush_stdin(){//funçao que limpa o buff
     while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
-void pivotamento(double matrizaux[maxtam][maxtam+1],int linha){
-    int j=0;
+void pivotamento(int maxtam, long double matrizaux[maxtam][maxtam+1],int linha){
+    int j=0;//funçao que faz o pivotamento ela identifica a maior linha e faz a troca 
 
-    double maior=fabs(matrizaux[linha][linha]), aux[maxtam+1];
-    int posicao=linha;
-    for(int i=linha;i<maxtam;i++){
+    long double maior=fabs(matrizaux[linha][linha]), aux[maxtam+1];//maior recebe o primeiro elemento em modulo
+    int posicao=linha;//salva a posiçao da linha inicial
+    for(int i=linha;i<maxtam;i++){//percorre as linhas em busca da posiçao maior
         j=linha;
-        if(maior < fabs(matrizaux[i][j])){
+        if(maior < fabs(matrizaux[i][j])){//se a posiçao for maior ele salva ela e o valor
             maior=fabs(matrizaux[i][j]);
             posicao=i;
         }
     }
-    if(posicao!=linha){
-        for (int j =0; j <=maxtam; j++){
+    if(posicao!=linha){//faz a troca das linhas
+        for (int j =0; j <=maxtam; j++){//salva no auxiliar para fazer a substituiçao
             aux[j]=matrizaux[posicao][j];
         }
         for (int j = 0; j <=maxtam; j++){
@@ -78,13 +76,16 @@ void pivotamento(double matrizaux[maxtam][maxtam+1],int linha){
     }
 }
 
-void imprime(double matriz[maxtam][maxtam+1]){
+void imprime(int maxtam, long double matriz[maxtam][maxtam+1]){//funçao para imprimir a matriz
     for(int i=0; i<maxtam; i++){//mostra a matriz na tela
         for(int j=0; j<=maxtam; j++){
             if(j==maxtam){
-                printf(" =");
+                printf(" = %.4Lf",matriz[ i ][ j ]);
+               
+            }else{
+                printf(" %.2Lf",matriz[ i ][ j ]);
             }
-            printf(" %.2lf",matriz[ i ][ j ]);
+            
         }
         printf ("\n");
     }
@@ -97,16 +98,23 @@ i    1   1   1 = -1
 i   -1  -2   3 = 15
 
 */
-void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
+void gauss_jordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
     int i=0, j=0,k=0;
-    double v[maxtam+1],ajj,aij;
+    long double v[maxtam+1],ajj,aij;
     for (j=0;j<maxtam;j++){//linhas
         //imprime(matrizaux);
         //printf ("\n");
-        pivotamento(matrizaux,j);
-        ajj=matrizaux[j][j];
-        for (k= 0; k <=maxtam; k++){
-            if(matrizaux[j][k]==0||ajj==0){
+        pivotamento(maxtam,matrizaux,j);//troca a linha maior
+        if(matrizaux[j][j]==0){//verifica se a diagonal é 0 mesmo depois da troca
+            //if(matrizaux[j][maxtam]==0)
+                //printf("\né um SPI\n");
+           // else
+                //printf("\né um SI\n");
+            return;//caso seja 0 ele encerra as execuçoes
+        }
+        ajj=matrizaux[j][j];//salva a posiçao ajj da matriz pois sera alterada
+        for (k= 0; k <=maxtam; k++){//for para percorrer cada elemento da linha j
+            if(matrizaux[j][k]==0||ajj==0){//verificaçao se esta fazendo  divisao por 0;
                 matrizaux[j][k]=0;
             }else{
                 matrizaux[j][k]=matrizaux[j][k]/ajj;;//𝐿𝑗 ← 𝐿𝑗/𝑎𝑗𝑗 ;
@@ -116,8 +124,8 @@ void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
 
         for (i=0;i<maxtam;i++) {
             if (i!=j){
-                aij=matrizaux[i][j];
-                for(k=0;k<=maxtam;k++){
+                aij=matrizaux[i][j];//salva a posiçao i j da matriz
+                for(k=0;k<=maxtam;k++){//percorre cada elemento das linhas 
                     matrizaux[j][k]=matrizaux[j][k]*aij;// 𝐿𝑗 ← 𝐿𝑗 ∗ 𝑎𝑖𝑗 ;
                     matrizaux[i][k]=matrizaux[i][k]-matrizaux[j][k];//𝐿𝑖 ← 𝐿𝑖 − 𝐿𝑗 ;
                     matrizaux[j][k]=v[k];//𝐿𝑗 ← 𝑉;
@@ -127,16 +135,36 @@ void gauss_jordan(double matrizaux[maxtam][maxtam+1]){
     }
 }
 
-//1-Método Algébrico de Gauss-Jordan=9,10,13,14
+void solucaogaussjordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
+
+    if(matrizaux[maxtam-1][maxtam-1]==0){//verifica se a ultima diagonal principal e 0
+        if(matrizaux[maxtam-1][maxtam]==0){//verifica o ultimo vetor b
+            printf("o sistema e um SPI\n");
+        }else{
+            printf("o sistema e um SI\n");
+        }
+    }else{
+        printf("o sistema e um SPD:\n");
+        for (int i=0; i < maxtam; i++){//imprime o resultado do vetor b (Xi)
+           printf("x%d: %.4Lf ",i,matrizaux[i][maxtam]);
+        }
+        printf("\n");
+    }
+
+}
+
+//11 15
+//1-Método Algébrico de Gauss-Jordan =9,10,13,14--5 7 12
 //2-Método Iterativo de Gauss-Seidel
 //3-Ambos os métodos deverão tratar a ocorrência de coeficientes-pivôs nulos 
 //ou pequenos por meio do Método de Pivotamento Parcial.
 
 int main(){//funcao principal do programa
     int  i= 0,j= 0;
-    
+    int maxtam= 0;
+
 	FILE *file; //declaracao do ponteiro arquivo para o arquivo 1
-    file= fopen("Inputs3-2.txt","r");//abre o arquivo 
+    file= fopen("Inputs15.txt","r");//abre o arquivo 
     
     if(file==NULL){//verifica se o file esta abrindo corretamente
         printf("nao foi possivel abrir o arquivo.\n");
@@ -145,16 +173,16 @@ int main(){//funcao principal do programa
     }
    
     fscanf(file,"%d",&maxtam);//le um valor de uma variavel do arquivo como se o usuario estivesse digitado
-    double matriz[maxtam][maxtam+1],vetor[maxtam],matrizaux[maxtam][maxtam+1];//declara a matriz e o vetor b no tamanho lido
+    long double matriz[maxtam][maxtam+1],vetor[maxtam],matrizaux[maxtam][maxtam+1];//declara a matriz e o vetor b no tamanho lido
     
     for(i=0; i<maxtam; i++){//preenche a matriz com os valores do arquivo
         for(j=0; j<maxtam; j++){
-            fscanf(file,"%lf",&matriz[i][j]);
+            fscanf(file,"%Lf",&matriz[i][j]);
         }     
     }   
 
     for(i=0; i<maxtam; i++){//preenche o vetor b com os valores do arquivo
-        fscanf(file,"%lf",&vetor[i]);
+        fscanf(file,"%Lf",&vetor[i]);
     }
 
     fclose(file);//fecha o arquivo para evitar erros
@@ -164,21 +192,23 @@ int main(){//funcao principal do programa
        matriz[ i ][ j ]=vetor[i];
     }
 
-    for(i=0; i<maxtam; i++){//mostra a matriz na tela
+    for(i=0; i<maxtam; i++){//cria uma matriz auxiliar
         for(j=0; j<=maxtam; j++){
             matrizaux[i][j]=matriz[ i ][ j ];
         }
     }
+
     printf ("Matriz aumentada original [𝐴 ⋮ 𝑏] : \n");
-        imprime(matriz);
+        imprime(maxtam,matriz);
         printf ("\n");
 
-    gauss_jordan(matrizaux);
+    gauss_jordan(maxtam, matrizaux);
 
     printf ("Matriz equivalente [𝐴′ ⋮ 𝑏′] : \n");
-        imprime(matrizaux);
+        imprime(maxtam,matrizaux);
         printf ("\n");
 
+    solucaogaussjordan(maxtam,matrizaux);
     pause();
 
     return 0;//encerra o programa
