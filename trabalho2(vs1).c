@@ -146,7 +146,7 @@ void solucaogaussjordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
     }else{
         printf("o sistema e um SPD:\n");
         for (int i=0; i < maxtam; i++){//imprime o resultado do vetor b (Xi)
-           printf("x%d: %.4Lf ",i,matrizaux[i][maxtam]);
+           printf("x%d: %.10Lf ",i,matrizaux[i][maxtam]);
         }
         printf("\n");
     }
@@ -160,11 +160,12 @@ void solucaogaussjordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
 //ou pequenos por meio do Método de Pivotamento Parcial.
 
 int main(){//funcao principal do programa
-    int  i= 0,j= 0;
+    int  i= 0,j= 0,K=0;
     int maxtam= 0;
-
+    long double epsilon=0.005;
+    //float epsilon=0.005;
 	FILE *file; //declaracao do ponteiro arquivo para o arquivo 1
-    file= fopen("Inputs15.txt","r");//abre o arquivo 
+    file= fopen("Inputs3.txt","r");//abre o arquivo 
     
     if(file==NULL){//verifica se o file esta abrindo corretamente
         printf("nao foi possivel abrir o arquivo.\n");
@@ -184,9 +185,11 @@ int main(){//funcao principal do programa
     for(i=0; i<maxtam; i++){//preenche o vetor b com os valores do arquivo
         fscanf(file,"%Lf",&vetor[i]);
     }
+    fscanf(file,"%d",&K);
+    fscanf(file,"%Lf",&epsilon);
 
     fclose(file);//fecha o arquivo para evitar erros
-
+    
     j=maxtam;
     for(i=0; i<maxtam; i++){//adiciona o vetor b a matriz na ultima coluna
        matriz[ i ][ j ]=vetor[i];
@@ -209,6 +212,7 @@ int main(){//funcao principal do programa
         printf ("\n");
 
     solucaogaussjordan(maxtam,matrizaux);
+    printf(" k=%d ,𝜀=%Lf ",K,epsilon);
     pause();
 
     return 0;//encerra o programa
