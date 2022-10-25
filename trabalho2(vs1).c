@@ -76,6 +76,47 @@ void pivotamento(int maxtam, long double matrizaux[maxtam][maxtam+1],int linha){
     }
 }
 
+void pivotamentocompleto(int maxtam,long double matrizaux[maxtam][maxtam+1]){
+    long double maior=0,aux=0,multiplicador=0;
+    int k,i,j,l,c;
+
+    for(k=0;k<maxtam-1;k++){
+        l = c = k;
+        maior = fabs(matrizaux[k][k]);
+        for(i=k;i<maxtam;i++){// Encontra o maior elemento em modulo  
+            for(j=k;j<maxtam;j++){
+                if(fabs(matrizaux[i][j]) > maior){
+                    maior = fabs(matrizaux[i][j]);
+                    l = i;
+                    c = j;
+                }
+            }
+        }
+        if(l != k){// Se a linha do maior elemento encontrado for maior que o pivo original troca as linhas
+            for(i=0;i<=maxtam;i++){
+                aux = matrizaux[k][i];
+                matrizaux[k][i] = matrizaux[l][i];
+                matrizaux[l][i] = aux;
+            }
+        }
+        if(c != k){ //troca a coluna 
+            for(i=0;i<maxtam;i++){
+                aux = matrizaux[i][k];
+                matrizaux[i][k] = matrizaux[i][c];
+                matrizaux[i][c] = aux;
+            }
+        }
+        // Zera os elementos abaixo da diagonal principal (escalonamento)
+        for(i=k+1;i<maxtam;i++){
+            multiplicador = matrizaux[i][k]/matrizaux[k][k];
+			matrizaux[i][k] = 0;
+			for(j=k+1;j<=maxtam;j++){
+				matrizaux[i][j] -= multiplicador * matrizaux[k][j];
+			}
+		}	
+    }
+}
+
 void imprime(int maxtam, long double matriz[maxtam][maxtam+1]){//funçao para imprimir a matriz
     for(int i=0; i<maxtam; i++){//mostra a matriz na tela
         for(int j=0; j<=maxtam; j++){
@@ -153,6 +194,69 @@ void solucaogaussjordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
 
 }
 
+void gauss_seidel(int maxtam,long double matrizaux[maxtam][maxtam+1],int K,long double epsilon){
+    /*A partir destes dados, o programa deverá calcular o Critério de Convergência de Sassenfeld 
+    e imprimir se há ou não a certeza de que o Método de Gauss-Seidel convergirá para a solução 
+    do sistema.*/
+    int i=0,j=0;
+    long double beta[maxtam],Sassenfeld=0,soma=0;
+    printf("\npivotada:\n");
+    pivotamentocompleto(maxtam,matrizaux);
+    imprime(maxtam,matrizaux);
+
+    beta[0]=0;
+    for(i=1;i<maxtam;i++){//salva o beta como 1 para na atrapalhar na divisao
+        beta[i]=1;
+    }
+
+    for(j=0;j<maxtam;j++){//operacionaliza linha 1
+        beta[0]=beta[j]+matrizaux[0][j];
+        if(matrizaux[0][0]!=0){//verifica divisao por zero
+            beta[0]=beta[0]/matrizaux[0][0];
+        }else{
+            beta[0]=0;
+        }
+    }
+
+    for ( i = 1; i < maxtam; i++){//percorre as linhas
+        soma=0;
+        if(matrizaux[0][0]!=0){//verifica divisao por zero
+            for ( j = 0; j < maxtam; j++){//percorre as colunas
+                if(i!=j){//verifica se nao esta na diagonal principal
+                    soma+=(fabs(matrizaux[i][j])*beta[j]);//soma cada eleento da linha
+                }
+                if(matrizaux[i][i]!=0){//verifica divisao por zero
+                    beta[i]=soma/fabs(matrizaux[i][i]);
+                }else{
+                    beta[i]=0;
+                }
+            }
+        }else{
+            beta[i]=0;
+        }
+    }
+        
+    Sassenfeld=beta[0];
+	for(i=1;i<maxtam;i++){
+		if(beta[i]>Sassenfeld){
+			Sassenfeld=beta[i];
+		}
+	}
+    if(Sassenfeld<1){
+        printf("\nhá a certeza de que o Método de Gauss-Seidel convergirá para a solução do sistema.\n beta = %Lf < 1",Sassenfeld);
+    }else{
+        printf("\nnão a certeza de que o Método de Gauss-Seidel convergirá para a solução do sistema.\nbeta = %Lf > 1",Sassenfeld);
+    }
+    /* Em seguida, o programa deverá imprimir o sistema 𝑥 = 𝐹𝑥 + 𝑑 gerado e, para 
+    toda equação 𝑖 resolvida durante cada iteração 𝑘, deverá imprimir o 𝑥𝑖 obtido.
+    Ao final de cada iteração 𝑘, o programa deverá analisar se a condição do critério
+    de parada 𝜀 foi satisfeita. Caso afirmativo, o programa deverá parar e 
+    apresentar a solução obtida. Caso negativo, o programa deverá parar apenas
+    quando chegar à iteração 𝑘 e apresentar a solução aproximada obtida.*/
+    
+   
+}
+
 //11 15
 //1-Método Algébrico de Gauss-Jordan =9,10,13,14--5 7 12
 //2-Método Iterativo de Gauss-Seidel
@@ -212,7 +316,15 @@ int main(){//funcao principal do programa
         printf ("\n");
 
     solucaogaussjordan(maxtam,matrizaux);
-    printf(" k=%d ,𝜀=%Lf ",K,epsilon);
+
+    for(i=0; i<maxtam; i++){//cria uma matriz auxiliar
+        for(j=0; j<=maxtam; j++){
+            matrizaux[i][j]=matriz[ i ][ j ];
+        }
+    }
+
+    gauss_seidel(maxtam,matrizaux,K,epsilon);
+    //printf(" k=%d ,𝜀=%Lf ",K,epsilon);
     pause();
 
     return 0;//encerra o programa
