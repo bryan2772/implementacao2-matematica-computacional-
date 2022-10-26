@@ -35,6 +35,7 @@ deverá imprimir o sistema 𝑥 = 𝐹𝑥 + 𝑑 gerado e, para toda equação 
 imprimir o 𝑥𝑖 obtido. Ao final de cada iteração 𝑘, o programa deverá analisar se a condição do critério de parada 𝜀 foi
 satisfeita. Caso afirmativo, o programa deverá parar e apresentar a solução obtida. Caso negativo, o programa deverá
 parar apenas quando chegar à iteração 𝑘 e apresentar a solução aproximada obtida.*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -109,8 +110,7 @@ void pivotamentocompleto(int maxtam,long double matrizaux[maxtam][maxtam+1]){
         // Zera os elementos abaixo da diagonal principal (escalonamento)
         for(i=k+1;i<maxtam;i++){
             multiplicador = matrizaux[i][k]/matrizaux[k][k];
-			matrizaux[i][k] = 0;
-			for(j=k+1;j<=maxtam;j++){
+			for(j=k;j<=maxtam;j++){
 				matrizaux[i][j] -= multiplicador * matrizaux[k][j];
 			}
 		}	
@@ -137,7 +137,6 @@ matriz[3][4]=
 i    2   3  -1 = -7
 i    1   1   1 = -1
 i   -1  -2   3 = 15
-
 */
 void gauss_jordan(int maxtam,long double matrizaux[maxtam][maxtam+1]){
     int i=0, j=0,k=0;
@@ -199,7 +198,7 @@ void gauss_seidel(int maxtam,long double matrizaux[maxtam][maxtam+1],int K,long 
     e imprimir se há ou não a certeza de que o Método de Gauss-Seidel convergirá para a solução 
     do sistema.*/
     int i=0,j=0,k=0;
-    long double beta[maxtam],Sassenfeld=0,soma=0,X[maxtam],Xanterior[maxtam],elementomaior=epsilon;
+    long double beta[maxtam],Sassenfeld=0,soma=0,X[maxtam],Xanterior[maxtam],elementomaior=epsilon,elementomaioraux=0;
     printf("\nmatriz apos o pivotamento completo:\n");
     pivotamentocompleto(maxtam,matrizaux);
     imprime(maxtam,matrizaux);
@@ -269,25 +268,19 @@ void gauss_seidel(int maxtam,long double matrizaux[maxtam][maxtam+1],int K,long 
         }
         printf(") / %Lf \n",matrizaux[i][i]);
     }
-     //imprime(maxtam,matrizaux);
 
-
-
-
-/*e, para 
+    /*e, para 
     toda equação 𝑖 resolvida durante cada iteração 𝑘, deverá imprimir o 𝑥𝑖 obtido.
     Ao final de cada iteração 𝑘, o programa deverá analisar se a condição do critério
     de parada 𝜀 foi satisfeita. Caso afirmativo, o programa deverá parar e 
     apresentar a solução obtida. Caso negativo, o programa deverá parar apenas
     quando chegar à iteração 𝑘 e apresentar a solução aproximada obtida.*/
 
-
-
-
     for(i=0;i<maxtam;i++){
         X[i]=0;
         Xanterior[i]=0;
     }
+
     soma=0;
     for(k=1;k<=K && elementomaior >= epsilon;k++){
         printf("\nk=%d ",k);
@@ -304,11 +297,31 @@ void gauss_seidel(int maxtam,long double matrizaux[maxtam][maxtam+1],int K,long 
             soma=0;
         }
 
+        elementomaior=fabs(fabs(X[0])-fabs(Xanterior[0]));;
         for(i=0;i<maxtam;i++){
-            Xanterior[i]=X[i];
+            if(elementomaior<elementomaioraux){
+                elementomaior=elementomaioraux;
+            }
+                elementomaioraux=fabs(fabs(X[i])-fabs(Xanterior[i]));
         }
 
+        for(i=0;i<maxtam;i++){
+            Xanterior[i]=X[i];
+        }   
+	}
+
+    if(elementomaior>=epsilon){
+        printf("\n\nA condiçao de parada K<%d foi alcançada e os resultados de x foram: \n",K);
+        for(i=0;i<maxtam;i++){
+            printf(" X%d = %Lf  ",X[i],i+1);
+        }
+    }else{
+        printf("\n\nA condiçao de parada %Lf>=%Lf foi alcançada e os resultados de x foram: \n",elementomaior,epsilon);
+        for(i=0;i<maxtam;i++){
+            printf(" X%d = %Lf  ",X[i],i+1);
+        }
     }
+     printf("\n");
 }
 
 //11 15
@@ -320,10 +333,10 @@ void gauss_seidel(int maxtam,long double matrizaux[maxtam][maxtam+1],int K,long 
 int main(){//funcao principal do programa
     int  i= 0,j= 0,K=0;
     int maxtam= 0;
-    long double epsilon=0.005;
+    long double epsilon=0.0001;
     //float epsilon=0.005;
 	FILE *file; //declaracao do ponteiro arquivo para o arquivo 1
-    file= fopen("Inputs3.txt","r");//abre o arquivo 
+    file= fopen("Inputs4.txt","r");//abre o arquivo 
     
     if(file==NULL){//verifica se o file esta abrindo corretamente
         printf("nao foi possivel abrir o arquivo.\n");
@@ -376,10 +389,9 @@ int main(){//funcao principal do programa
             matrizaux[i][j]=matriz[ i ][ j ];
         }
     }
-    pause();
     gauss_seidel(maxtam,matrizaux,K,epsilon);
     //printf(" k=%d ,𝜀=%Lf ",K,epsilon);
     pause();
 
     return 0;//encerra o programa
-}
+} 
